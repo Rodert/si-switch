@@ -68,7 +68,7 @@ function App() {
   const [sort, setSort] = useState<'updated' | 'name'>('updated')
   const [editorOpen, setEditorOpen] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
-  const [theme, setTheme] = useState<'dark' | 'light'>('dark')
+  const [theme, setTheme] = useState<'dark' | 'light'>('light')
   const [toast, setToast] = useState<string | null>(null)
   const [updateStatus, setUpdateStatus] = useState<'idle' | 'checking' | 'current' | 'available' | 'error'>('idle')
   const [updateInfo, setUpdateInfo] = useState<UpdateCheckResult | null>(null)
@@ -163,7 +163,7 @@ function App() {
           <div className="brand-mark"><Zap size={15} strokeWidth={2.5} /></div>
           <div>
             <div className="brand-name">Si Switch</div>
-            <div className="brand-meta">LOCAL CONFIG HUB</div>
+            <div className="brand-meta">本地配置管理</div>
           </div>
         </div>
 
