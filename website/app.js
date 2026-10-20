@@ -4,6 +4,7 @@ const releasesUrl = `https://github.com/${repository}/releases`
 const platforms = {
   macos: {
     name: 'macOS',
+    icon: './assets/os-apple.svg',
     description: '支持 Apple Silicon 与 Intel Mac',
     options: [
       { name: 'DMG · Apple Silicon', detail: 'M1、M2、M3、M4 及更新芯片', match: (file) => file.endsWith('.dmg') && hasAny(file, 'aarch64', 'arm64') },
@@ -14,6 +15,7 @@ const platforms = {
   },
   windows: {
     name: 'Windows',
+    icon: './assets/os-windows.svg',
     description: '适用于 Windows 10 与 Windows 11 x64',
     options: [
       { name: 'MSI 安装版', detail: '适合大多数 Windows 用户', match: (file) => file.endsWith('.msi') },
@@ -22,6 +24,7 @@ const platforms = {
   },
   linux: {
     name: 'Linux',
+    icon: './assets/os-linux.svg',
     description: '当前发布版本面向 x86_64 桌面系统',
     options: [
       { name: 'AppImage', detail: '通用便携包', match: (file) => file.endsWith('.appimage') },
@@ -77,18 +80,19 @@ function downloadRows(platformKey, compact = false) {
   `).join('')
 }
 
-function renderPlatform(platformKey) {
-  activePlatform = platformKey
-  document.querySelectorAll('.platform-tabs [role="tab"]').forEach((button) => {
-    button.setAttribute('aria-selected', String(button.dataset.platform === platformKey))
-  })
-  const platform = platforms[platformKey]
-  document.querySelector('#platform-panel').innerHTML = `
-    <div class="platform-summary">
-      <div class="platform-meta"><h3>${platform.name}</h3><p>${platform.description}</p></div>
-      <ul class="download-list">${downloadRows(platformKey)}</ul>
-    </div>
-  `
+function renderPlatforms() {
+  document.querySelector('#platform-grid').innerHTML = Object.entries(platforms).map(([key, platform], index) => `
+    <article class="platform-card${key === activePlatform ? ' is-detected' : ''}" style="--card-order: ${index}">
+      <div class="platform-card-head">
+        <img src="${platform.icon}" width="48" height="48" alt="${platform.name} 标志" />
+        ${key === activePlatform ? '<span class="detected-badge">已识别</span>' : ''}
+      </div>
+      <h3>${platform.name}</h3>
+      <p>${platform.description}</p>
+      <ul class="download-list">${downloadRows(key)}</ul>
+      <button class="platform-open" type="button" data-platform="${key}">查看 ${platform.name} 全部格式</button>
+    </article>
+  `).join('')
 }
 
 function renderDialog(platformKey) {
@@ -106,8 +110,8 @@ function renderDialog(platformKey) {
   `
 }
 
-function openDialog() {
-  renderDialog(activePlatform)
+function openDialog(platformKey = activePlatform) {
+  renderDialog(platformKey)
   const dialog = document.querySelector('#download-dialog')
   if (!dialog.open) dialog.showModal()
 }
@@ -119,32 +123,25 @@ function setup() {
 
   const dialogTabs = document.querySelector('.dialog-tabs')
   dialogTabs.innerHTML = Object.entries(platforms).map(([key, item]) => `
-    <button type="button" role="tab" data-platform="${key}" aria-selected="false">${item.name}</button>
+    <button type="button" role="tab" data-platform="${key}" aria-selected="false"><img src="${item.icon}" width="20" height="20" alt="" />${item.name}</button>
   `).join('')
 
-  document.querySelectorAll('[role="tab"]').forEach((button) => {
+  dialogTabs.querySelectorAll('[role="tab"]').forEach((button) => {
     button.addEventListener('click', () => {
       const key = button.dataset.platform
-      if (button.closest('.dialog-tabs')) renderDialog(key)
-      else {
-        renderPlatform(key)
-        sessionStorage.setItem('si-switch-download-choice', 'true')
-      }
+      renderDialog(key)
     })
   })
-  document.querySelector('#smart-download').addEventListener('click', openDialog)
+  document.querySelector('#smart-download').addEventListener('click', () => openDialog())
+  document.querySelector('#platform-grid').addEventListener('click', (event) => {
+    const button = event.target.closest('.platform-open')
+    if (button) openDialog(button.dataset.platform)
+  })
   document.querySelector('#close-dialog').addEventListener('click', () => document.querySelector('#download-dialog').close())
   document.querySelector('#download-dialog').addEventListener('click', (event) => {
     if (event.target === event.currentTarget) event.currentTarget.close()
   })
-  renderPlatform(activePlatform)
-
-  if (!sessionStorage.getItem('si-switch-download-choice')) {
-    window.setTimeout(openDialog, 450)
-  }
-  document.querySelector('#download-dialog').addEventListener('click', (event) => {
-    if (event.target.closest('.download-link')) sessionStorage.setItem('si-switch-download-choice', 'true')
-  })
+  renderPlatforms()
 }
 
 async function loadRelease() {
@@ -167,7 +164,7 @@ async function loadRelease() {
   } catch {
     document.querySelector('#release-line').textContent = '从 GitHub Releases 获取最新版本'
   }
-  renderPlatform(activePlatform)
+  renderPlatforms()
   if (document.querySelector('#download-dialog').open) renderDialog(dialogPlatform)
 }
 

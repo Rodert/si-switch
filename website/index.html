@@ -4,14 +4,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="下载 Si Switch，一款本地优先的 AI 编程工具 API 配置与切换管理器。支持 macOS、Windows 和 Linux。" />
-    <meta name="theme-color" content="#ffffff" />
+    <meta name="theme-color" content="#f7f7f8" />
     <meta property="og:title" content="Si Switch — 简单、干净的 API 配置切换器" />
     <meta property="og:description" content="管理 Codex 与 Claude Code 的多套 API 配置，并在本地一键切换。" />
     <meta property="og:type" content="website" />
     <title>Si Switch — 下载</title>
     <link rel="icon" href="./assets/logo.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="./styles.css" />
-    <script src="./app.js" defer></script>
+    <script src="./app.js" type="module"></script>
   </head>
   <body data-repository="Rodert/si-switch">
     <header class="site-header">
@@ -21,18 +21,21 @@
       </a>
       <nav aria-label="主导航">
         <a href="#downloads">下载</a>
+        <a href="#principles">为什么选择 Si Switch</a>
         <a href="https://github.com/Rodert/si-switch" rel="noreferrer">GitHub</a>
       </nav>
     </header>
 
     <main id="top">
       <section class="hero" aria-labelledby="hero-title">
-        <img class="hero-product" src="./assets/app-preview.png" alt="Si Switch 桌面应用中的 Codex 配置管理界面" />
-        <div class="hero-shade" aria-hidden="true"></div>
+        <div class="hero-stage">
+          <div class="hero-product-back" aria-hidden="true"></div>
+          <img class="hero-product" src="./assets/app-preview.png" alt="Si Switch 桌面应用中的 Codex 配置管理界面" />
+        </div>
         <div class="hero-content">
           <p class="release-line" id="release-line">正在读取最新版本</p>
           <h1 id="hero-title">Si Switch</h1>
-          <p class="hero-copy">把 Codex 与 Claude Code 的 API 配置留在本地。添加、测试、搜索，然后一键切换。</p>
+          <p class="hero-copy">在一个本地工作台里管理 Codex 与 Claude Code 的 API 配置，然后一键切换。</p>
           <div class="hero-actions">
             <button class="primary-action" id="smart-download" type="button">选择下载版本</button>
             <a class="secondary-action" href="https://github.com/Rodert/si-switch" rel="noreferrer">查看源代码</a>
@@ -48,19 +51,12 @@
             <p class="section-index">01</p>
             <h2 id="downloads-title">选择你的平台</h2>
           </div>
-          <p>无需登录。选择安装包或便携包，下载后直接使用。</p>
+          <p>系统已自动识别，但选择权始终由你决定。无需登录，直接下载对应安装包。</p>
         </div>
-
-        <div class="platform-tabs" role="tablist" aria-label="操作系统">
-          <button type="button" role="tab" data-platform="macos" aria-selected="false">macOS</button>
-          <button type="button" role="tab" data-platform="windows" aria-selected="false">Windows</button>
-          <button type="button" role="tab" data-platform="linux" aria-selected="false">Linux</button>
-        </div>
-
-        <div class="platform-panel" id="platform-panel" aria-live="polite"></div>
+        <div class="platform-grid" id="platform-grid" aria-live="polite"></div>
       </section>
 
-      <section class="principles" aria-labelledby="principles-title">
+      <section class="principles" id="principles" aria-labelledby="principles-title">
         <div class="section-heading">
           <div>
             <p class="section-index">02</p>
@@ -88,7 +84,7 @@
           <p id="dialog-detected">已识别你的系统</p>
           <h2 id="dialog-title">选择下载版本</h2>
         </div>
-        <button class="icon-button" id="close-dialog" type="button" aria-label="关闭下载选择">×</button>
+        <button class="icon-button" id="close-dialog" type="button" aria-label="关闭下载选择"></button>
       </div>
       <div class="dialog-tabs" role="tablist" aria-label="下载平台"></div>
       <div id="dialog-options"></div>
