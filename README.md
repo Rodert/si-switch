@@ -55,7 +55,7 @@ npm run tauri dev
 
 `website/` 是独立的 GitHub Pages 下载页。页面会识别访问者的操作系统并优先打开对应下载选择，同时保留 macOS、Windows 和 Linux 的全部格式入口；下载地址会自动读取最新的开发版或正式版 GitHub Release。
 
-推送到 `main` 后，`.github/workflows/pages.yml` 会部署该目录。仓库首次使用时，需要在 GitHub 的 **Settings → Pages → Build and deployment → Source** 中选择 **GitHub Actions**。
+推送到 `main` 后，`.github/workflows/pages.yml` 会自动启用 GitHub Pages 并部署该目录。如果仓库或组织策略禁止工作流自动启用 Pages，则需要在 GitHub 的 **Settings → Pages → Build and deployment → Source** 中手动选择 **GitHub Actions**。
 
 ## 更新策略
 
