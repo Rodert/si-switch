@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 1,
+  "defaultUpdateType": "optional",
+  "forcedVersions": [],
+  "downloadPageUrl": "https://rodert.github.io/si-switch/",
+  "forceUpdateMessage": "当前版本存在必须修复的问题，请下载并安装最新版本后继续使用。"
+}

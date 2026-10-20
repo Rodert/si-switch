@@ -1,0 +1,183 @@
+name: Build every commit
+
+on:
+  push:
+    branches:
+      - "**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  metadata:
+    name: Generate build identity
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.meta.outputs.version }}
+      date: ${{ steps.meta.outputs.date }}
+      display_time: ${{ steps.meta.outputs.display_time }}
+      stamp: ${{ steps.meta.outputs.stamp }}
+      short_sha: ${{ steps.meta.outputs.short_sha }}
+      tag: ${{ steps.meta.outputs.tag }}
+    steps:
+      - name: Create automatic version and Beijing timestamp
+        id: meta
+        shell: bash
+        run: |
+          build_date=$(TZ=Asia/Shanghai date '+%Y-%m-%d')
+          build_time=$(TZ=Asia/Shanghai date '+%H-%M')
+          display_time=$(TZ=Asia/Shanghai date '+%Y-%m-%d %H:%M CST')
+          version="0.1.${GITHUB_RUN_NUMBER}"
+          short_sha="${GITHUB_SHA::7}"
+          tag="build-v${version}-${build_date}-${build_time}-${short_sha}"
+          {
+            echo "version=${version}"
+            echo "date=${build_date}"
+            echo "display_time=${display_time}"
+            echo "stamp=${build_date}_${build_time}-CST"
+            echo "short_sha=${short_sha}"
+            echo "tag=${tag}"
+          } >> "$GITHUB_OUTPUT"
+
+  macos:
+    name: macOS (${{ matrix.arch }})
+    needs: metadata
+    runs-on: ${{ matrix.runner }}
+    env:
+      SI_BUILD_VERSION: ${{ needs.metadata.outputs.version }}
+      SI_BUILD_STAMP: ${{ needs.metadata.outputs.stamp }}
+      VITE_BUILD_VERSION: ${{ needs.metadata.outputs.version }}
+      VITE_BUILD_STAMP: ${{ needs.metadata.outputs.stamp }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: macos-13
+            arch: x64
+          - runner: macos-14
+            arch: arm64
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@1.87.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Prepare build version
+        run: node scripts/prepare-ci-build.mjs
+      - name: Build macOS packages
+        run: npm run tauri -- build --config src-tauri/tauri.macos.conf.json --config src-tauri/tauri.build.conf.json --bundles app,dmg && npm run package:mac:zip
+      - name: Collect timestamped packages
+        run: node scripts/collect-release-assets.mjs macos
+      - uses: actions/upload-artifact@v4
+        with:
+          name: si-switch-${{ needs.metadata.outputs.date }}-macos-${{ matrix.arch }}
+          if-no-files-found: error
+          retention-days: 30
+          path: release-assets/*
+
+  windows:
+    name: Windows x64
+    needs: metadata
+    runs-on: windows-latest
+    env:
+      SI_BUILD_VERSION: ${{ needs.metadata.outputs.version }}
+      SI_BUILD_STAMP: ${{ needs.metadata.outputs.stamp }}
+      VITE_BUILD_VERSION: ${{ needs.metadata.outputs.version }}
+      VITE_BUILD_STAMP: ${{ needs.metadata.outputs.stamp }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@1.87.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Prepare build version
+        run: node scripts/prepare-ci-build.mjs
+      - name: Build Windows packages
+        run: npm run tauri -- build --config src-tauri/tauri.windows.conf.json --config src-tauri/tauri.build.conf.json --bundles msi && npm run package:windows:zip
+      - name: Collect timestamped packages
+        run: node scripts/collect-release-assets.mjs windows
+      - uses: actions/upload-artifact@v4
+        with:
+          name: si-switch-${{ needs.metadata.outputs.date }}-windows-x64
+          if-no-files-found: error
+          retention-days: 30
+          path: release-assets/*
+
+  linux:
+    name: Linux x64
+    needs: metadata
+    runs-on: ubuntu-22.04
+    env:
+      SI_BUILD_VERSION: ${{ needs.metadata.outputs.version }}
+      SI_BUILD_STAMP: ${{ needs.metadata.outputs.stamp }}
+      VITE_BUILD_VERSION: ${{ needs.metadata.outputs.version }}
+      VITE_BUILD_STAMP: ${{ needs.metadata.outputs.stamp }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@1.87.0
+      - name: Install Tauri and packaging dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            libappindicator3-dev \
+            librsvg2-dev \
+            patchelf \
+            rpm \
+            libfuse2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Prepare build version
+        run: node scripts/prepare-ci-build.mjs
+      - name: Build Linux packages
+        run: npm run tauri -- build --config src-tauri/tauri.linux.conf.json --config src-tauri/tauri.build.conf.json --bundles appimage,deb,rpm
+      - name: Collect timestamped packages
+        run: node scripts/collect-release-assets.mjs linux
+      - uses: actions/upload-artifact@v4
+        with:
+          name: si-switch-${{ needs.metadata.outputs.date }}-linux-x64
+          if-no-files-found: error
+          retention-days: 30
+          path: release-assets/*
+
+  release:
+    name: Publish automatic development release
+    needs: [metadata, macos, windows, linux]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download all packages
+        uses: actions/download-artifact@v4
+        with:
+          path: release-assets
+          merge-multiple: true
+      - name: Publish development release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.metadata.outputs.tag }}
+          target_commitish: ${{ github.sha }}
+          name: Si Switch v${{ needs.metadata.outputs.version }} · ${{ needs.metadata.outputs.display_time }}
+          body: |
+            本版本由 GitHub Actions 在每次代码提交后自动构建。
+
+            - 自动版本：v${{ needs.metadata.outputs.version }}
+            - 构建时间：${{ needs.metadata.outputs.display_time }}（北京时间）
+            - 提交：`${{ github.sha }}`
+            - 分支：`${{ github.ref_name }}`
+
+            包含 macOS DMG/ZIP、Windows MSI/ZIP，以及 Linux AppImage/DEB/RPM。
+          prerelease: true
+          fail_on_unmatched_files: true
+          files: release-assets/*

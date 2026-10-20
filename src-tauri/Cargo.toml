@@ -1,0 +1,27 @@
+[package]
+name = "si-switch"
+version = "0.1.0"
+description = "A local-first configuration switcher for AI coding tools"
+authors = ["Si Switch Contributors"]
+edition = "2021"
+rust-version = "1.87"
+
+[lib]
+name = "si_switch_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "1.0"
+uuid = { version = "=1.10.0", features = ["v4", "serde"] }
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+semver = "1.0"
+tauri-plugin-opener = "2"
+
+[features]
+custom-protocol = ["tauri/custom-protocol"]

@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="下载 Si Switch，一款本地优先的 AI 编程工具 API 配置与切换管理器。支持 macOS、Windows 和 Linux。" />
+    <meta name="theme-color" content="#ffffff" />
+    <meta property="og:title" content="Si Switch — 简单、干净的 API 配置切换器" />
+    <meta property="og:description" content="管理 Codex 与 Claude Code 的多套 API 配置，并在本地一键切换。" />
+    <meta property="og:type" content="website" />
+    <title>Si Switch — 下载</title>
+    <link rel="icon" href="./assets/logo.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./styles.css" />
+    <script src="./app.js" defer></script>
+  </head>
+  <body data-repository="Rodert/si-switch">
+    <header class="site-header">
+      <a class="brand" href="#top" aria-label="Si Switch 首页">
+        <img src="./assets/logo.svg" alt="" width="32" height="32" />
+        <span>Si Switch</span>
+      </a>
+      <nav aria-label="主导航">
+        <a href="#downloads">下载</a>
+        <a href="https://github.com/Rodert/si-switch" rel="noreferrer">GitHub</a>
+      </nav>
+    </header>
+
+    <main id="top">
+      <section class="hero" aria-labelledby="hero-title">
+        <img class="hero-product" src="./assets/app-preview.png" alt="Si Switch 桌面应用中的 Codex 配置管理界面" />
+        <div class="hero-shade" aria-hidden="true"></div>
+        <div class="hero-content">
+          <p class="release-line" id="release-line">正在读取最新版本</p>
+          <h1 id="hero-title">Si Switch</h1>
+          <p class="hero-copy">把 Codex 与 Claude Code 的 API 配置留在本地。添加、测试、搜索，然后一键切换。</p>
+          <div class="hero-actions">
+            <button class="primary-action" id="smart-download" type="button">选择下载版本</button>
+            <a class="secondary-action" href="https://github.com/Rodert/si-switch" rel="noreferrer">查看源代码</a>
+          </div>
+          <p class="system-hint" id="system-hint" aria-live="polite">正在识别你的系统</p>
+        </div>
+        <a class="next-section" href="#downloads">全部平台 <span aria-hidden="true">↓</span></a>
+      </section>
+
+      <section class="downloads" id="downloads" aria-labelledby="downloads-title">
+        <div class="section-heading">
+          <div>
+            <p class="section-index">01</p>
+            <h2 id="downloads-title">选择你的平台</h2>
+          </div>
+          <p>无需登录。选择安装包或便携包，下载后直接使用。</p>
+        </div>
+
+        <div class="platform-tabs" role="tablist" aria-label="操作系统">
+          <button type="button" role="tab" data-platform="macos" aria-selected="false">macOS</button>
+          <button type="button" role="tab" data-platform="windows" aria-selected="false">Windows</button>
+          <button type="button" role="tab" data-platform="linux" aria-selected="false">Linux</button>
+        </div>
+
+        <div class="platform-panel" id="platform-panel" aria-live="polite"></div>
+      </section>
+
+      <section class="principles" aria-labelledby="principles-title">
+        <div class="section-heading">
+          <div>
+            <p class="section-index">02</p>
+            <h2 id="principles-title">只做配置管理</h2>
+          </div>
+          <p>没有账号体系、广告或云端同步要求。核心配置默认只保存在你的设备上。</p>
+        </div>
+        <div class="principle-grid">
+          <article><span>01</span><h3>本地优先</h3><p>配置与密钥由本机管理，不依赖在线账号。</p></article>
+          <article><span>02</span><h3>独立切换</h3><p>Codex 与 Claude Code 的当前配置互不影响。</p></article>
+          <article><span>03</span><h3>开源透明</h3><p>构建、发布与核心逻辑都可以在 GitHub 检查。</p></article>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <a class="brand" href="#top"><img src="./assets/logo.svg" alt="" width="28" height="28" /><span>Si Switch</span></a>
+      <p>支持 macOS、Windows 与 Linux</p>
+      <a href="https://github.com/Rodert/si-switch/releases" rel="noreferrer">全部版本</a>
+    </footer>
+
+    <dialog class="download-dialog" id="download-dialog" aria-labelledby="dialog-title">
+      <div class="dialog-header">
+        <div>
+          <p id="dialog-detected">已识别你的系统</p>
+          <h2 id="dialog-title">选择下载版本</h2>
+        </div>
+        <button class="icon-button" id="close-dialog" type="button" aria-label="关闭下载选择">×</button>
+      </div>
+      <div class="dialog-tabs" role="tablist" aria-label="下载平台"></div>
+      <div id="dialog-options"></div>
+      <p class="dialog-note">无法确定系统或芯片？关闭此窗口后可在页面中查看全部平台。</p>
+    </dialog>
+  </body>
+</html>

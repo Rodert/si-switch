@@ -1,0 +1,10 @@
+node_modules/
+dist/
+artifacts/
+release-assets/
+src-tauri/tauri.build.conf.json
+src-tauri/target/
+*.tsbuildinfo
+vite.config.js
+vite.config.d.ts
+.DS_Store
